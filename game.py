@@ -51,10 +51,24 @@ def info(player_hand,ai_hand,trump,deck):
       print(f'Ręka gracza: {player_hand}\nRęka AI: {ai_hand}\ntrump: {trump}\nPozostałe karty: {deck}')
 
 def player_info(player_hand,deck,player_points):
-    print(f'Liczba kart w talii: {len(deck)}\nKarta na dole: {deck[0][0]} {deck[0][1]}\nPunkty: {player_points}')
-    print("Wybierz karte:")
+    if len(deck) > 0:
+        print(f'Liczba kart w talii: {len(deck)}\nKarta na dole: {deck[0][0]} {deck[0][1]}\nPunkty: {player_points}')
+    else:
+        print("Talia pusta")
     for i in range(len(player_hand)):
         print(f'[{i}] {player_hand[i][0]} {player_hand[i][1]}')
+
+def chosse_winner(player_points,ai_points):
+    if player_points > 66:
+        print(f'Wygrywa gracz {player_points} - {ai_points}')
+        return 0
+    elif ai_points > 66:
+        print(f'Wygrywa AI {ai_points} - {player_points}')
+        return 1
+    else:
+        print(f'Remis {player_points} - {ai_points}')
+        return 2
+
 
 def game():
     player_points = 0
@@ -62,28 +76,49 @@ def game():
     deck = create_deck()
     deck, trump = prepare_game(deck)
     player_hand, ai_hand = dealing(deck)
-    #info(player_hand,ai_hand,trump,deck)
     player_lead = True
-    if player_lead:
+    while len(player_hand) > 0 and player_points < 66 and ai_points < 66:
         player_info(player_hand,deck,player_points)
-        player_pick = player_hand.pop(int(input()))
-        ai_pick = ai_hand.pop()
-        print(f'Gracz rzuca: {player_pick}\nAI rzuca: {ai_pick}')
-        if compare_cards(player_pick,ai_pick,trump):
-            player_points += values[player_pick[0]] + values[ai_pick[0]]
-        else:
-            player_lead = False
-            ai_points += values[player_pick[0]] + values[ai_pick[0]]
-    if len(deck) > 1:
         if player_lead:
-            player_hand.insert(0,deck.pop())
-            ai_hand.insert(0,deck.pop())
+            lead_pick = player_hand.pop(int(input()))
+            follow_pick = ai_hand.pop()
+            print(f'Gracz rzuca: {lead_pick}\nAI rzuca: {follow_pick}')
         else:
-            ai_hand.insert(0,deck.pop())
-            player_hand.insert(0,deck.pop())
-    player_info(player_hand,deck,player_points)
+            lead_pick = ai_hand.pop()
+            print(f'AI rzuca: {lead_pick}')
+            follow_pick = player_hand.pop(int(input()))
+            print(f'Gracz rzuca: {follow_pick}\nAI rzuca: {lead_pick}')
 
+       # Dystrybucja punktów i określanie kto wychodzi 
+        winner_is_lead = compare_cards(lead_pick,follow_pick,trump)
+        trick_points =  values[lead_pick[0]] + values[follow_pick[0]]
+       
+        if winner_is_lead:
+            if player_lead:
+                player_points += trick_points
+            else:
+                ai_points += trick_points
+        else:
+            player_lead = not player_lead
+            if player_lead:
+                player_points += trick_points
+            else:
+                ai_points += trick_points
+            
+        # Dobieranie kart
+        if len(deck) > 0:
+            if player_lead:
+                player_hand.append(deck.pop())
+                ai_hand.append(deck.pop())
+            else:
+                ai_hand.append(deck.pop())
+                player_hand.append(deck.pop())
+    # 0 - gracz, 1 - ai, 2 - remis
+    game_result = chosse_winner(player_points,ai_points)
 game()
 
-
-
+# TODO
+# - Meldunki
+# - Gra gdy talia się skonczy
+# - Walidacja czy gracz wybrał kartę z zakresu (1...(n-1))
+# - Dobieranie karty ze spodu
