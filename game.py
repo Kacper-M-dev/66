@@ -92,6 +92,23 @@ def check_marriages(card, hand, trump):
                         return 20
     return 0
 
+def is_move_legal(lead, hand, follow_num,trump):
+    hand_copy = hand.copy()
+    hand_copy.pop(follow_num)
+    if lead[1] == hand[follow_num][1]:
+        return True
+    elif hand[follow_num][1] == trump:
+        for card in hand:
+            if card[1] == lead[1]:
+                print("Karta musi przebić i być do koloru")
+                return False
+        return True
+    for card in hand:
+        if card[1] == lead[1] or card[1] == trump:
+            print("Karta musi przebić i być do koloru")
+            return False
+    return True
+        
 def game():
     player_points = 0
     ai_points = 0
@@ -100,18 +117,33 @@ def game():
     deck, trump = prepare_game(deck)
     player_hand, ai_hand = dealing(deck)
     player_lead = True
+    # game loop
     while len(player_hand) > 0 and player_points < 66 and ai_points < 66:
         player_info(player_hand,deck,player_points)
+        # Gracz wychodzi
         if player_lead:
             lead_pick = player_hand.pop(get_user_choice(player_hand))
             player_points += check_marriages(lead_pick,player_hand, trump)
-            follow_pick = ai_hand.pop()
+            ai_chocie = random.randint(0,len(ai_hand)-1)
+            
+            # gra gdy talia się skończyła
+            if len(deck) < 1:
+                while not is_move_legal(lead_pick,ai_hand,ai_chocie,trump):
+                    ai_chocie = random.randint(0,len(ai_hand)-1)
+            follow_pick = ai_hand.pop(ai_chocie)
             print(f'Gracz rzuca: {lead_pick}\nAI rzuca: {follow_pick}')
+        # AI wychodzi
         else:
-            lead_pick = ai_hand.pop()
+            lead_pick = ai_hand.pop(random.randint(0,len(ai_hand)-1))
             ai_points += check_marriages(lead_pick,ai_hand,trump)
             print(f'AI rzuca: {lead_pick}')
-            follow_pick = player_hand.pop(get_user_choice(player_hand))
+            player_choice = get_user_choice(player_hand)
+            
+            # gra gdy talia się skończyła
+            if len(deck) < 1:
+                while not is_move_legal(lead_pick,player_hand,player_choice,trump):
+                    player_choice = get_user_choice(player_hand)
+            follow_pick = player_hand.pop(player_choice)
             print(f'Gracz rzuca: {follow_pick}\nAI rzuca: {lead_pick}')
 
        # Dystrybucja punktów i określanie kto wychodzi 
@@ -148,4 +180,7 @@ game()
 
 # TODO
 # - Gra gdy talia się skonczy
+#   - Trzeba przebić (działa tylko kolor)
+#   - Nie można dobrać karty ze spodu
 # - wyjmowanie karty ze spodu
+# - zamiast remisu ostatni sztych
