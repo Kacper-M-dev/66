@@ -26,9 +26,9 @@ Program odzwierciedla pełną mechanikę gry, w tym specyficzną hierarchię kar
    python main.py
    ```
 ## TODO
-[ ] Implementacja "inteligentnego" AI.
+[] Implementacja "inteligentnego" AI.
 
-[ ] AI potrafiące wymieniać 9 na kartę ze spodu.
+[] AI potrafiące wymieniać 9 na kartę ze spodu.
 
-[ ] Tabela z podsumowaniem punktów po każdej turze.
+[] Tabela z podsumowaniem punktów po każdej turze.
 
