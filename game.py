@@ -59,15 +59,12 @@ def player_info(player_hand,deck,player_points):
         print(f'[{i}] {player_hand[i][0]} {player_hand[i][1]}')
 
 def chosse_winner(player_points,ai_points):
-    if player_points > 66:
+    if player_points >= 66:
         print(f'Wygrywa gracz {player_points} - {ai_points}')
         return 0
-    elif ai_points > 66:
+    else:
         print(f'Wygrywa AI {ai_points} - {player_points}')
         return 1
-    else:
-        print(f'Remis {player_points} - {ai_points}')
-        return 2
 def get_user_choice(player_hand):
     while True:
         try:
@@ -91,21 +88,30 @@ def check_marriages(card, hand, trump):
                         print('Meldunek 20!')
                         return 20
     return 0
-
+def switch_bottom_card(hand,deck,index_of_9):
+    temp = hand.pop(index_of_9)
+    hand.append(deck.pop(0))
+    deck.insert(0,temp)
+    print(f"Zamieniono 9 na {hand[-1]}")
+    
 def is_move_legal(lead, hand, follow_num,trump):
     hand_copy = hand.copy()
     hand_copy.pop(follow_num)
-    if lead[1] == hand[follow_num][1]:
+    follow_card = hand[follow_num]
+    # dano do koloru
+    if lead[1] == follow_card[1]:
+        if values[follow_card[0]] < values[lead[0]]:
+            for card in hand:
+                if values[card[0]] > values[lead[0]]:
+                    return False
         return True
-    elif hand[follow_num][1] == trump:
+    elif follow_card[1] == trump:
         for card in hand:
             if card[1] == lead[1]:
-                print("Karta musi przebić i być do koloru")
                 return False
         return True
     for card in hand:
         if card[1] == lead[1] or card[1] == trump:
-            print("Karta musi przebić i być do koloru")
             return False
     return True
         
@@ -122,6 +128,14 @@ def game():
         player_info(player_hand,deck,player_points)
         # Gracz wychodzi
         if player_lead:
+            if len(deck) > 0:
+                has_9_trump = False
+                for i, card in enumerate(player_hand):
+                    if card[1] == trump and card[0] == "9":
+                        if input("Czy chcesz zamienić 9 na karte ze spodu? [T/N]: ") == "T":
+                            switch_bottom_card(player_hand,deck,i)
+                            player_info(player_hand,deck,player_points)
+                        
             lead_pick = player_hand.pop(get_user_choice(player_hand))
             player_points += check_marriages(lead_pick,player_hand, trump)
             ai_chocie = random.randint(0,len(ai_hand)-1)
@@ -142,10 +156,11 @@ def game():
             # gra gdy talia się skończyła
             if len(deck) < 1:
                 while not is_move_legal(lead_pick,player_hand,player_choice,trump):
+                    print("Karta musi przebić i być do koloru")
                     player_choice = get_user_choice(player_hand)
             follow_pick = player_hand.pop(player_choice)
             print(f'Gracz rzuca: {follow_pick}\nAI rzuca: {lead_pick}')
-
+        input()
        # Dystrybucja punktów i określanie kto wychodzi 
         winner_is_lead = compare_cards(lead_pick,follow_pick,trump)
         player_is_winner = False
@@ -174,13 +189,14 @@ def game():
             else:
                 ai_hand.append(deck.pop())
                 player_hand.append(deck.pop())
-    # 0 - gracz, 1 - ai, 2 - remis
+    
+    if ai_points < 66 and player_points < 66:
+        if player_is_winner:
+            player_points += 10
+            print("Bonus dla gracza za ostatniego sztycha! (+10 pkt)")
+        else:
+            ai_points += 10
+            print("Bonus dla AI za ostatniego sztycha! (+10 pkt)")
+    # 0 - gracz, 1 - ai
     game_result = chosse_winner(player_points,ai_points)
 game()
-
-# TODO
-# - Gra gdy talia się skonczy
-#   - Trzeba przebić (działa tylko kolor)
-#   - Nie można dobrać karty ze spodu
-# - wyjmowanie karty ze spodu
-# - zamiast remisu ostatni sztych
