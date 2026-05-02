@@ -19,16 +19,16 @@ Program odzwierciedla pełną mechanikę gry, w tym specyficzną hierarchię kar
 *   Zainstalowany **Python 3.6** lub nowszy.
 
 ### Uruchomienie
-1. Sklonuj repozytorium lub pobierz plik `main.py`.
+1. Sklonuj repozytorium lub pobierz plik `game.py`.
 2. Otwórz terminal w folderze projektu.
 3. Uruchom grę komendą:
    ```bash
-   python main.py
+   python game.py
    ```
 ## TODO
-[] Implementacja "inteligentnego" AI.
+[ ] Implementacja "inteligentnego" AI.
 
-[] AI potrafiące wymieniać 9 na kartę ze spodu.
+[ ] AI potrafiące wymieniać 9 na kartę ze spodu.
 
-[] Tabela z podsumowaniem punktów po każdej turze.
+[ ] Tabela z podsumowaniem punktów po każdej turze.
 
